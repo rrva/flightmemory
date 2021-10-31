@@ -5,7 +5,7 @@
 Helper class for production profiling using java flight recorder (JFR)
 
 ```java
-FlightMemory.recordingAsZip("test", Duration.ofSeconds(10));
+FlightMemory.recordingAsZip(Duration.ofSeconds(10));
 ``` 
 
 Returns a `CompletableFuture<InputStream>` to a zipfile which contains:
@@ -65,7 +65,7 @@ public class FlightRecordingController {
     public ResponseEntity<InputStreamResource> flightRecorder() throws ExecutionException, InterruptedException {
         LocalDateTime now = LocalDateTime.now();
         InputStreamResource inputStreamResource = 
-                new InputStreamResource(FlightMemory.recordingAsZip("test", Duration.ofSeconds(10), null, false).get());
+                new InputStreamResource(FlightMemory.recordingAsZip(Duration.ofSeconds(10)).get());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 
