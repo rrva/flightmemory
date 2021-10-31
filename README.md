@@ -23,6 +23,19 @@ Returns a `CompletableFuture<InputStream>` to a zipfile which contains:
 Requires the app to run in a JVM with flight recorder classes available (jdk.jfr package), for example java8u262 or
 higher (jdk not jre) or java11
 
+Depend on it in gradle or maven
+
+```
+repositories {
+    ...
+    maven { url 'https://jitpack.io' }
+}
+```        
+
+```
+implementation 'com.github.rrva:flightmemory:0.1.0'
+```
+
 Example usage in a spring boot application (Kotlin, see below for Java).
 
 Here we do a ten second profiling, so we record and return the recording synchronously.
