@@ -19,7 +19,7 @@ fun main() {
         }
     }
     println("Starting 10 second flight recording")
-    val zipFile = FlightMemory.recordingAsZip("test", Duration.ofSeconds(10))
+    val zipFile = FlightMemory.recordingAsZip(Duration.ofSeconds(10))
     val tempFile = File.createTempFile("test", ".zip")
     tempFile.writeBytes(zipFile.get().readAllBytes())
     println("Wrote to $tempFile")
