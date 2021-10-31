@@ -36,42 +36,11 @@ repositories {
 implementation 'com.github.rrva:flightmemory:0.1.0'
 ```
 
-Example usage in a spring boot application (Kotlin, see below for Java).
+Example usage in a spring boot application:
 
 Here we do a ten second profiling, so we record and return the recording synchronously.
 For long recordings you might get a HTTP timeout so it might be better
 to return immediately with a link where the finished recording can be fetched.
-
-
-```kotlin 
-import org.springframework.core.io.InputStreamResource
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RestController
-import io.github.rrva.flightmemory.FlightMemory
-import java.time.LocalDateTime
-import java.time.Duration
-
-@RestController
-class FlightRecordingController {
-
-@GetMapping("/profile.jfr.zip")
-    fun flightRecorder(): ResponseEntity<InputStreamResource> {
-        val now = LocalDateTime.now()
-        val inputStreamResource = 
-                InputStreamResource(FlightMemory.recordingAsZip("test", Duration.ofSeconds(10))).get()
-        val httpHeaders = HttpHeaders()
-        httpHeaders.contentType = MediaType.APPLICATION_OCTET_STREAM;
-
-        httpHeaders.set("Content-Disposition", "attachment; filename=index-profile-${now}.zip");
-
-        return ResponseEntity(inputStreamResource, httpHeaders, HttpStatus.OK)
-    }
-}
-```
 
 Java usage:
 
@@ -86,16 +55,17 @@ import org.springframework.web.bind.annotation.RestController;
 import io.github.rrva.flightmemory.FlightMemory;
 import java.time.LocalDateTime;
 import java.time.Duration;
+import java.util.concurrent.ExecutionException;
 
 
 @RestController
 public class FlightRecordingController {
 
     @GetMapping("/profile.jfr.zip")
-    public ResponseEntity<InputStreamResource> flightRecorder() {
+    public ResponseEntity<InputStreamResource> flightRecorder() throws ExecutionException, InterruptedException {
         LocalDateTime now = LocalDateTime.now();
         InputStreamResource inputStreamResource = 
-                new InputStreamResource(FlightMemory.recordingAsZip("test", Duration.ofSeconds(10))).get();
+                new InputStreamResource(FlightMemory.recordingAsZip("test", Duration.ofSeconds(10), null, false).get());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 
