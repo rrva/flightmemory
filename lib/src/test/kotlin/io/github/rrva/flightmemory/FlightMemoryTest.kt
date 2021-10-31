@@ -28,7 +28,7 @@ internal class FlightMemoryTest {
             sleepForever()
         }
 
-        val inputStream = FlightMemory.reco rdingAsZip("test", Duration.ofSeconds(1), Duration.ofSeconds(1), true)
+        val inputStream = FlightMemory.recordingAsZip(Duration.ofSeconds(1), Duration.ofSeconds(1), "test", true)
         val fileContents = ZipInputStream(inputStream.get())
             .use { zipInputStream ->
                 generateSequence { zipInputStream.nextEntry }
