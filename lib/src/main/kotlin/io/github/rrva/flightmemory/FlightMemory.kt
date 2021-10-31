@@ -29,9 +29,9 @@ object FlightMemory {
     @JvmStatic
     @JvmOverloads
     fun recordingAsZip(
-        filenamePrefix: String = "flightmemory",
         profileDuration: Duration? = Duration.ofSeconds(10),
         defaultRecordingDuration: Duration? = null,
+        filenamePrefix: String = "flightmemory",
         dumpCoroutines: Boolean = false,
     ): CompletableFuture<InputStream> {
 
