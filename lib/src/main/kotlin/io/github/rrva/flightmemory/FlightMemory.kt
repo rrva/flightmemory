@@ -1,6 +1,8 @@
 package io.github.rrva.flightmemory
 
 import jdk.jfr.Configuration
+import jdk.jfr.FlightRecorder
+import jdk.jfr.FlightRecorderPermission
 import jdk.jfr.Recording
 import jdk.jfr.consumer.RecordedEvent
 import jdk.jfr.consumer.RecordedFrame
@@ -9,6 +11,8 @@ import kotlinx.coroutines.debug.DebugProbes
 import java.io.*
 import java.nio.file.Files
 import java.nio.file.Path
+import java.security.AccessController
+import java.security.PrivilegedAction
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.zip.ZipEntry
@@ -26,6 +30,38 @@ object FlightMemory {
         return recording
     }
 
+    private fun getRecorder(): FlightRecorder? {
+        synchronized(this) {
+            return AccessController.doPrivileged(
+                PrivilegedAction { FlightRecorder.getFlightRecorder() },
+                null,
+                FlightRecorderPermission("accessFlightRecorder")
+            )
+        }
+    }
+
+    fun dumpFirstActiveRecording(): Path? {
+        val recording = getRecorder()?.recordings?.firstOrNull { it.startTime != null && it.stopTime == null }
+        return if (recording != null) {
+            val path = Files.createTempFile("flightrecording", ".jfr")
+            recording?.dump(path)
+            path
+        } else {
+            null
+        }
+    }
+
+    fun dumpRecording(name: String): Path? {
+        val recording = getRecorder()?.recordings?.firstOrNull { it.name == name }
+        return if (recording != null) {
+            val path = Files.createTempFile("flightrecording", ".jfr")
+            recording?.dump(path)
+            path
+        } else {
+            null
+        }
+    }
+
     @JvmStatic
     @JvmOverloads
     fun recordingAsZip(
@@ -41,7 +77,7 @@ object FlightMemory {
             val defaultRecordingFile = Files.createTempFile("$filenamePrefix-default-", ".jfr")
 
             try {
-                val coroutinesDump = if(dumpCoroutines) coroutinesDump() else null
+                val coroutinesDump = if (dumpCoroutines) coroutinesDump() else null
                 record("profile", profileDuration, profileRecordingFile)
                 record("default", defaultRecordingDuration, defaultRecordingFile)
                 val stacks = stacksFromFlightRecording(profileRecordingFile)
@@ -85,7 +121,7 @@ object FlightMemory {
             it.putNextEntry(ZipEntry("$filenamePrefix/$filenamePrefix-stacks-folded.txt"))
             stacks.writeTo(zipOutput)
             it.closeEntry()
-            if(coroutinesDump != null) {
+            if (coroutinesDump != null) {
                 it.putNextEntry(ZipEntry("$filenamePrefix/$filenamePrefix-coroutines-dump-kotlin.txt"))
                 coroutinesDump.writeTo(zipOutput)
                 it.closeEntry()

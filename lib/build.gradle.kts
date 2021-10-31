@@ -4,7 +4,7 @@ plugins {
     `maven-publish`
 }
 
-version = "0.1.0"
+version = "0.1.5"
 
 repositories {
     mavenCentral()
@@ -17,7 +17,7 @@ java {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "io.github.rrva"
+            groupId = "com.github.rrva"
             artifactId = "flightmemory"
             version = version
 
